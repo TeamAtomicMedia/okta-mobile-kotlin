@@ -29,6 +29,7 @@ import com.okta.oauth2.RedirectEndSessionFlow
 import com.okta.oauth2.RedirectEndSessionFlow.Companion.createRedirectEndSessionFlow
 import com.okta.webauthenticationui.events.CustomizeBrowserEvent
 import com.okta.webauthenticationui.events.CustomizeCustomTabsEvent
+import java.util.UUID
 
 /**
  * Authentication coordinator that simplifies signing users in using browser-based OIDC authentication flows.
@@ -88,11 +89,13 @@ class WebAuthenticationClient private constructor(
     suspend fun login(
         context: Context,
         redirectUrl: String,
+        state: String = UUID.randomUUID().toString(),
+        nonce: String = UUID.randomUUID().toString(),
         extraRequestParameters: Map<String, String> = emptyMap(),
         scope: String = oidcClient.configuration.defaultScope,
     ): OidcClientResult<Token> {
         val initializationResult = redirectCoordinator.initialize(webAuthenticationProvider, context) {
-            when (val result = authorizationCodeFlow.start(redirectUrl, extraRequestParameters, scope)) {
+            when (val result = authorizationCodeFlow.start(redirectUrl, state, nonce, extraRequestParameters, scope)) {
                 is OidcClientResult.Success -> {
                     RedirectInitializationResult.Success(result.result.url, result.result)
                 }
@@ -133,7 +136,7 @@ class WebAuthenticationClient private constructor(
      * @param redirectUrl the redirect URL.
      * @param idToken the token used to identify the session to log the user out of.
      */
-    suspend fun logoutOfBrowser(context: Context, redirectUrl: String, idToken: String): OidcClientResult<Unit> {
+    suspend fun logoutOfBrowser(context: Context, redirectUrl: String, state: String, idToken: String): OidcClientResult<Unit> {
         val initializationResult = redirectCoordinator.initialize(webAuthenticationProvider, context) {
             when (val result = redirectEndSessionFlow.start(redirectUrl, idToken)) {
                 is OidcClientResult.Success -> {

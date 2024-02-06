@@ -105,14 +105,16 @@ class AuthorizationCodeFlow private constructor(
      */
     suspend fun start(
         redirectUrl: String,
+        state: String = UUID.randomUUID().toString(),
+        nonce: String = UUID.randomUUID().toString(),
         extraRequestParameters: Map<String, String> = emptyMap(),
         scope: String = oidcClient.configuration.defaultScope,
     ): OidcClientResult<Context> {
         return start(
             redirectUrl = redirectUrl,
             codeVerifier = PkceGenerator.codeVerifier(),
-            state = UUID.randomUUID().toString(),
-            nonce = UUID.randomUUID().toString(),
+            state = state,
+            nonce = nonce,
             extraRequestParameters = extraRequestParameters,
             scope = scope
         )

@@ -80,3 +80,9 @@ dependencies {
 
     debugImplementation deps.leakcanary.android
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEach {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}

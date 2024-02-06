@@ -65,3 +65,9 @@ dependencies {
     testImplementation deps.truth
     testImplementation project(':test-helpers')
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEach {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}
