@@ -95,7 +95,7 @@ class WebAuthenticationClient private constructor(
         scope: String = oidcClient.configuration.defaultScope,
     ): OidcClientResult<Token> {
         val initializationResult = redirectCoordinator.initialize(webAuthenticationProvider, context) {
-            when (val result = authorizationCodeFlow.start(redirectUrl, state, nonce, extraRequestParameters, scope)) {
+            when (val result = authorizationCodeFlow.start(redirectUrl, extraRequestParameters, scope, state, nonce)) {
                 is OidcClientResult.Success -> {
                     RedirectInitializationResult.Success(result.result.url, result.result)
                 }
@@ -136,9 +136,9 @@ class WebAuthenticationClient private constructor(
      * @param redirectUrl the redirect URL.
      * @param idToken the token used to identify the session to log the user out of.
      */
-    suspend fun logoutOfBrowser(context: Context, redirectUrl: String, state: String, idToken: String): OidcClientResult<Unit> {
+    suspend fun logoutOfBrowser(context: Context, redirectUrl: String, idToken: String, state: String = UUID.randomUUID().toString()): OidcClientResult<Unit> {
         val initializationResult = redirectCoordinator.initialize(webAuthenticationProvider, context) {
-            when (val result = redirectEndSessionFlow.start(redirectUrl, idToken)) {
+            when (val result = redirectEndSessionFlow.start(redirectUrl, idToken, state)) {
                 is OidcClientResult.Success -> {
                     RedirectInitializationResult.Success(result.result.url, result.result)
                 }
