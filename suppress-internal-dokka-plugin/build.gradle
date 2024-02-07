@@ -4,3 +4,9 @@ dependencies {
     compileOnly "org.jetbrains.dokka:dokka-base:${versions.dokka}"
     compileOnly "org.jetbrains.dokka:dokka-core:${versions.dokka}"
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEach {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}

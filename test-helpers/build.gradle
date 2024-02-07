@@ -41,3 +41,9 @@ dependencies {
     implementation deps.okio.jvm
     implementation deps.okhttp.tls
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEach {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}
