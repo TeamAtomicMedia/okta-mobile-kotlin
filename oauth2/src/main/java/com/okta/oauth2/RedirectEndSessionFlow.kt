@@ -78,14 +78,10 @@ class RedirectEndSessionFlow private constructor(
      * @param redirectUrl the redirect URL.
      * @param idToken the token used to identify the session to log the user out of.
      */
-    suspend fun start(redirectUrl: String, idToken: String): OidcClientResult<Context> {
-        return start(redirectUrl, idToken, UUID.randomUUID().toString())
-    }
-
-    internal suspend fun start(
+    suspend fun start(
         redirectUrl: String,
         idToken: String,
-        state: String,
+        state: String = UUID.randomUUID().toString(),
     ): OidcClientResult<Context> {
         val endpoint = oidcClient.endpointsOrNull()?.endSessionEndpoint ?: return oidcClient.endpointNotAvailableError()
 

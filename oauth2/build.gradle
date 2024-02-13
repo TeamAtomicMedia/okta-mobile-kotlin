@@ -69,3 +69,9 @@ dependencies {
 }
 
 preBuild.dependsOn(copyKotlinTemplates)
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEach {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}

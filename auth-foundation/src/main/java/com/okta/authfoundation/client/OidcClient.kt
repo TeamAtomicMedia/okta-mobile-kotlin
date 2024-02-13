@@ -123,6 +123,7 @@ class OidcClient private constructor(
      */
     suspend fun refreshToken(
         refreshToken: String,
+        redirectUrl: String = ""
     ): OidcClientResult<Token> {
         val endpoints = endpointsOrNull() ?: return endpointNotAvailableError()
 
@@ -130,6 +131,7 @@ class OidcClient private constructor(
             .add("client_id", configuration.clientId)
             .add("grant_type", "refresh_token")
             .add("refresh_token", refreshToken)
+            .add("redirect_uri", redirectUrl)
             .build()
 
         val request = Request.Builder()

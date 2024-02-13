@@ -103,3 +103,9 @@ static def parseScheme(String uri) {
     }
     return uri.substring(0, index)
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEach {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}

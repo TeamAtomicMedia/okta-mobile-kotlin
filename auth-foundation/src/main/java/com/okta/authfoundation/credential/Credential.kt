@@ -27,6 +27,7 @@ import com.okta.authfoundation.credential.events.NoAccessTokenAvailableEvent
 import com.okta.authfoundation.events.EventCoordinator
 import com.okta.authfoundation.jwt.Jwt
 import com.okta.authfoundation.jwt.JwtParser
+import com.okta.authfoundation.util.AtomicCoalescingOrchestrator
 import com.okta.authfoundation.util.CoalescingOrchestrator
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -57,8 +58,8 @@ class Credential internal constructor(
     token: Token? = null,
     tags: Map<String, String> = emptyMap()
 ) {
-    private val refreshCoalescingOrchestrator = CoalescingOrchestrator(
-        factory = ::performRealRefresh,
+    private val refreshCoalescingOrchestrator = AtomicCoalescingOrchestrator(
+        factory = { redirectUrl -> performRealRefresh(redirectUrl) },
         keepDataInMemory = { false },
     )
 
@@ -187,14 +188,14 @@ class Credential internal constructor(
     /**
      * Attempt to refresh the [Token] associated with this [Credential].
      */
-    suspend fun refreshToken(): OidcClientResult<Token> {
-        return refreshCoalescingOrchestrator.get()
+    suspend fun refreshToken(redirectUrl: String = ""): OidcClientResult<Token> {
+        return refreshCoalescingOrchestrator.get(redirectUrl)
     }
 
-    private suspend fun performRealRefresh(): OidcClientResult<Token> {
+    private suspend fun performRealRefresh(redirectUrl: String): OidcClientResult<Token> {
         val localToken = token ?: return OidcClientResult.Error(IllegalStateException("No Token."))
         val refresh = localToken.refreshToken ?: return OidcClientResult.Error(IllegalStateException("No Refresh Token."))
-        return oidcClient.refreshToken(refresh)
+        return oidcClient.refreshToken(refresh, redirectUrl)
     }
 
     /**
@@ -310,7 +311,7 @@ class Credential internal constructor(
      *
      * See [Credential.getAccessTokenIfValid] for what makes an access token valid.
      */
-    suspend fun getValidAccessToken(): String? {
+    suspend fun getValidAccessToken(redirectUrl: String = ""): String? {
         getAccessTokenIfValid()?.let { return it }
 
         if (refreshToken() is OidcClientResult.Success) {
